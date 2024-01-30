@@ -9,6 +9,7 @@ class Xpaths:
   lifestyle_attributes = ".//div[contains(@class, 'Pt(16px)')]/div"
   icon_name = ".//div/img"
   more_expand_elem = ".//div[contains(text(),'+')]"
+  login_btn = "//a/div[2]/div[2]"
 
 
 
