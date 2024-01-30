@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 from TinderDataClass import TinderScraper as Tsc
 import db_utils
-
+from xpaths import Xpaths
 import time
 
 
@@ -100,10 +100,45 @@ class TinderBot:
 	def append(self):
 		self.df = self.df[self.df['name'] != 'none']
 		self.df.to_csv('tinder_data.csv',index = False)
-
-
+	def login(self):
+		login_btn = self.driver.find_element(By.XPATH,Xpaths.login_btn)
+		login_btn.click()
+		time.sleep(0.2)
+		more_options = self.driver.find_element(By.XPATH,Xpaths.more_options)
+		more_options.click()
+		time.sleep(0.2)
+		more_options = self.driver.find_element(By.XPATH,Xpaths.more_options)
+		more_options.click()
+		time.sleep(0.2)
+		email_field = self.driver.find_element(By.XPATH,Xpaths.email)
+		email_field.click()
+		time.sleep(0.2)
+		email_field.clear()
+		email_field.send_keys('abca19510@gmail.com')
+		send_email = self.driver.find_element(By.XPATH,Xpaths.send_email)
+		send_email.click()
+		time.sleep(0.2)
 
 api = TinderBot("chromedriver.exe")
+api.get_website('https://www.tinder.com')
 
 
 
+def login(self):
+	login_btn = self.driver.find_element(By.XPATH,Xpaths.login_btn)
+	login_btn.click()
+	time.sleep(0.2)
+	more_options = self.driver.find_element(By.XPATH,Xpaths.more_options)
+	more_options.click()
+	time.sleep(0.2)
+	more_options = self.driver.find_element(By.XPATH,Xpaths.more_options)
+	more_options.click()
+	time.sleep(0.2)
+	email_field = self.driver.find_element(By.XPATH,Xpaths.email)
+	email_field.click()
+	time.sleep(0.2)
+	email_field.clear()
+	email_field.send_keys('abca19510@gmail.com')
+	send_email = self.driver.find_element(By.XPATH,Xpaths.send_email)
+	send_email.click()
+	time.sleep(0.2)

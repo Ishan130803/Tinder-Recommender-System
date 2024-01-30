@@ -10,6 +10,9 @@ class Xpaths:
   icon_name = ".//div/img"
   more_expand_elem = ".//div[contains(text(),'+')]"
   login_btn = "//a/div[2]/div[2]"
+  more_options = "//span/button"
+  email = '//*[@id="email"]'
+  send_email = '//main/div[1]/div[1]/div/div[2]/button/div[2]/div[2]'
 
 
 
