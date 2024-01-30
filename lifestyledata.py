@@ -71,6 +71,7 @@ class LifeStyle:
     "Night owl",
     "In a spectrum",
   ]
+  all_data = [pets,drinking,smoking,cannabis,workout,diet,social,sleep]
 
 class Basics:
   zodiac = [
@@ -149,8 +150,8 @@ class Basics:
     "Compliments",
     "Time together",
   ]
+  all_data = [zodiac,education,children,vaccinated,personality,communication,love_gesture,]
 
-all_data = [Basics.zodiac,Basics.education,Basics.children,Basics.vaccinated,Basics.personality,Basics.communication,Basics.love_gesture,]
 
 class RelationshipType:
   relationship_type = [

@@ -7,6 +7,7 @@ class Xpaths:
   about = "//div[contains(@class, 'Typs(body-1-regular)')]/div[contains(@class, 'Row')]/div[contains(@class , 'Us(t) Va(m) D(ib) NetWidth(100%,20px) C($c-ds-text-secondary)')]"
   lifestyle_categories = "//div[contains (@class ,'Px(16px) Py(12px)')][child::h2]"
   lifestyle_attributes = ".//div[contains(@class, 'Pt(16px)')]/div"
+  icon_name = ".//div/img"
   more_expand_elem = ".//div[contains(text(),'+')]"
 
 

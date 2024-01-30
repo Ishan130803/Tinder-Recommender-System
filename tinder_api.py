@@ -15,6 +15,7 @@ class TinderBot:
 		self.service = Service(executable_path=service_path)
 		self.driver = webdriver.Chrome(service=self.service)
 		self.Tsc = Tsc(driver=self.driver)
+		self.df : pd.DataFrame = pd.read_csv('tinder_data.csv')
 
 	def get_website(self, website):
 		self.driver.get(website)
@@ -39,12 +40,13 @@ class TinderBot:
 		data["about"] = self.Tsc.get_about()
 		data.update(self.Tsc.get_lifestyle())
 		return data
-	
-	def routine(self):
+
+	def auto_routine(self):
+		time.sleep(0.5+0.2*np.random.random())
 		self.press_key(Keys.ARROW_UP)
-		time.sleep(0.3)
+		time.sleep(0.5+0.2*np.random.random())
 		data = self.get_all()
-		row = db_utils.create_data_row(data)
+		row = db_utils.create_row_series(data)
 		swipe = np.random.randint(0,2)
 		if swipe == 0:
 			self.press_key(Keys.ARROW_LEFT)
@@ -52,7 +54,56 @@ class TinderBot:
 			self.press_key(Keys.ARROW_RIGHT)
 		return row
 
+	def user_routine(self):
+		self.press_key(Keys.ARROW_UP)
+		time.sleep(0.5)
+		data = self.get_all()
+		row = db_utils.create_row_series(data)
+		while True:
+			q = input('Swipe l/r or q :')
+			if q == 'l':
+				self.press_key(Keys.ARROW_LEFT)
+				row['prediction'] = 'NO'
+				return row,True
+			elif q == 'r':
+				self.press_key(Keys.ARROW_RIGHT)
+				row['prediction'] = 'YES'
+				return row,True
+			elif q == 'q':
+				return row,False
+
+	def user_loop(self):
+		running = True
+		while running:
+			time.sleep(0.5)
+			row,running = self.user_routine()
+			if running == False:
+				break
+			else:
+				print(row)
+				self.df.loc[len(self.df)] = row
+		
+	def auto_loop(self, max_data = 10):
+		running = True
+		while running:
+			for i in range(max_data):
+				row,running = self.auto_routine()
+				if running == False:
+					break
+				else:
+					print(row)
+					self.df.loc[len(self.df)] = row
+			q = input('want to quit(q)   :')
+			if q == 'q':
+				running = False
+		
+	def append(self):
+		self.df = self.df[self.df['name'] != 'none']
+		self.df.to_csv('tinder_data.csv',index = False)
+
+
 
 api = TinderBot("chromedriver.exe")
+
 
 
