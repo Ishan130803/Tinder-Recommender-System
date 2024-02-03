@@ -8,6 +8,7 @@ from TinderDataClass import TinderScraper as Tsc
 import db_utils
 from xpaths import Xpaths
 import time
+print('test')
 
 
 class TinderBot:
