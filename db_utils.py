@@ -93,8 +93,6 @@ column_ser = pd.Series({
   "prediction" : 'none'
 })
 
-
-
 # pets = pd.Series(np.arange(0,len(Ldata.LifeStyle.pets) + 1),index = ["none"] + Ldata.LifeStyle.pets)
 # drinking = pd.Series(np.arange(0,len(Ldata.LifeStyle.drinking) + 1),index = ["none"] + Ldata.LifeStyle.drinking)
 # smoking = pd.Series(np.arange(0,len(Ldata.LifeStyle.smoking) + 1),index = ["none"] + Ldata.LifeStyle.smoking)

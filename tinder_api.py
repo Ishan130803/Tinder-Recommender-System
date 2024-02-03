@@ -15,7 +15,7 @@ class TinderBot:
     self.service = Service(executable_path=service_path)
     self.driver = webdriver.Chrome(service=self.service)
     self.Tsc = Tsc(driver=self.driver)
-    self.df : pd.DataFrame = pd.read_csv('tinder_data.csv')
+    self.df : pd.DataFrame = pd.read_csv('tinder_data_w_about.csv')
 
   def get_website(self, website):
     self.driver.get(website)
