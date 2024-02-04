@@ -39,8 +39,6 @@ all_features = [
     'Passions__2',
     'Passions__3',
     'Passions__4',
-    'language_score',
-    'passion_score',
   ]
     
 user_clf_features = [
@@ -53,6 +51,11 @@ user_clf_features = [
     'Relationship_Open relationship',
     'Relationship_Polyamory',
     'Relationship_Open to exploring',
+    'Language_1',
+    'Language_2',
+    'Language_3',
+    'Language_4',
+    'Language_5',
     'Basics__astrological_sign',
     'Basics__education',
     'Basics__kids',
@@ -68,8 +71,11 @@ user_clf_features = [
     'Lifestyle__appetite',
     'Lifestyle__social_media',
     'Lifestyle__sleeping_habits',
-    'language_score',
-    'passion_score',
+    'Passions__0',
+    'Passions__1',
+    'Passions__2',
+    'Passions__3',
+    'Passions__4',
   ]
     
 non_encodables = ['age']
