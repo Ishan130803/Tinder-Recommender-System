@@ -165,10 +165,5 @@ class ModelEvaluator:
     user_data = self.pre.get_data_from_bin('D:/Programming Languages/Python/.Python Projects/TInder Recommendation system/data/user_data.bin')
     _data = self.pre.preprocessing_cbf_clf(user_data,data, model_features.user_clf_features, model_features.user_clf_features)
     return self.user_clf.predict(_data)
-  
-    
-  
-  
-
 
 # pre.reset_encoders('D:/Programming Languages/Python/.Python Projects/TInder Recommendation system/obj','lang_enc','rem_enc','passions_enc')

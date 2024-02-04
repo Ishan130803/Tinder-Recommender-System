@@ -8,6 +8,7 @@ from TinderDataClass import TinderScraper as Tsc
 import db_utils
 from xpaths import Xpaths
 import time
+from recommender_engine import ModelEvaluator
 
 
 class TinderBot:
@@ -16,6 +17,14 @@ class TinderBot:
     self.driver = webdriver.Chrome(service=self.service)
     self.Tsc = Tsc(driver=self.driver)
     self.df : pd.DataFrame = pd.read_csv(data_path)
+    self.evaluator = ModelEvaluator(
+      user_clf_path='D:/Programming Languages/Python/.Python Projects/TInder Recommendation system/models/user_clf.h5',
+      cbf_model_path='D:/Programming Languages/Python/.Python Projects/TInder Recommendation system/models/cbf1.h5',
+      obj_path='D:/Programming Languages/Python/.Python Projects/TInder Recommendation system/obj',
+      lang_enc_name='lang_enc.bin',
+      passions_enc_name='passions_enc.bin',
+      rem_enc_name='rem_enc.bin',
+    )
 
   def get_website(self, website):
     self.driver.get(website)
@@ -54,6 +63,12 @@ class TinderBot:
       self.press_key(Keys.ARROW_RIGHT)
     return row
 
+  def get_expected_prediction(self,item_data):
+    cbf = self.evaluator.get_cbf_pred(item_data)
+    clf = self.evaluator.get_user_clf_pred(item_data)
+    print(f' Prediction by Content Based Filtering net    = {cbf}')
+    print(f' Prediction by User Preference Classifier net = {clf}')
+    
   def user_routine(self):
     self.press_key(Keys.ARROW_UP)
     time.sleep(0.5)
@@ -64,13 +79,13 @@ class TinderBot:
       if q == 'l':
         self.press_key(Keys.ARROW_LEFT)
         row['prediction'] = 'NO'
-        return row,True
       elif q == 'r':
         self.press_key(Keys.ARROW_RIGHT)
         row['prediction'] = 'YES'
-        return row,True
       elif q == 'q':
         return row,False
+      self.get_expected_prediction(row)
+      return row,True
 
   def user_loop(self):
     running = True
@@ -122,8 +137,8 @@ class TinderBot:
     time.sleep(0.2)
 
 api = TinderBot(
-  "D:\Programming Languages\Python\.Python Projects\TInder Recommendation system\drivers\chromedriver.exe",
-  "D:\Programming Languages\Python\.Python Projects\TInder Recommendation system\data\backup.csv"
+  "D:/Programming Languages/Python/.Python Projects/TInder Recommendation system/drivers/chromedriver.exe",
+  "D:/Programming Languages/Python/.Python Projects/TInder Recommendation system/data/backup.csv"
 )
 
 api.get_website('https://www.tinder.com')
