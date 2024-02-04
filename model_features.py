@@ -39,6 +39,37 @@ all_features = [
     'Passions__2',
     'Passions__3',
     'Passions__4',
+    'language_score',
+    'passion_score',
+  ]
+    
+user_clf_features = [
+    'age',
+    'verified',
+    'looking_for',
+    'Pronouns',
+    'Relationship_Monogamy',
+    'Relationship_Ethical non-monogamy',
+    'Relationship_Open relationship',
+    'Relationship_Polyamory',
+    'Relationship_Open to exploring',
+    'Basics__astrological_sign',
+    'Basics__education',
+    'Basics__kids',
+    'Basics__covid_comfort',
+    'Basics__mbti',
+    'Basics__communication_style',
+    'Basics__love_language',
+    'Lifestyle__pets',
+    'Lifestyle__drink_of_choice',
+    'Lifestyle__smoking',
+    'Lifestyle__420',
+    'Lifestyle__workout',
+    'Lifestyle__appetite',
+    'Lifestyle__social_media',
+    'Lifestyle__sleeping_habits',
+    'language_score',
+    'passion_score',
   ]
     
 non_encodables = ['age']
