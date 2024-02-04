@@ -79,10 +79,13 @@ class CommonFeatureEncoding(IndependentFeatureEncoding):
 class DataPreprocessor:
   def __init__(
     self,
+    passion_enc_path,
+    language_enc_path,
+    rem_enc_path,
   ):
-    self.passion_encoder = CommonFeatureEncoding('D:/Programming Languages/Python/.Python Projects/TInder Recommendation system/obj/passions_enc.bin')
-    self.language_encoder = CommonFeatureEncoding('D:/Programming Languages/Python/.Python Projects/TInder Recommendation system/obj/lang_enc.bin')
-    self.rem_encoder = IndependentFeatureEncoding('D:/Programming Languages/Python/.Python Projects/TInder Recommendation system/obj/rem_enc.bin')
+    self.passion_encoder = CommonFeatureEncoding(passion_enc_path)
+    self.language_encoder = CommonFeatureEncoding(language_enc_path)
+    self.rem_encoder = IndependentFeatureEncoding(rem_enc_path)
   
   def get_frame_from_cols(self,dataset,cols):
     if isinstance(dataset, pd.Series):
@@ -105,13 +108,13 @@ class DataPreprocessor:
     return data
   
   
-  def preprocessing_cbf_clf(self,user_data,item_data):
-    user_data = self.preprocess_data(user_data).to_numpy()
-    item_data = self.preprocess_data(item_data).to_numpy()
+  def preprocessing_cbf_clf(self,user_data,item_data,user_feat,item_feat):
+    user_data = self.preprocess_data(user_data)[user_feat].astype(np.float64).to_numpy()
+    item_data = self.preprocess_data(item_data)[item_feat].astype(np.float64).to_numpy()
     return user_data, item_data
   
-  def preprocessing_user_clf(self,item_data):
-    item_data = self.preprocess_data(item_data).to_numpy()
+  def preprocessing_user_clf(self,item_data,item_feat):
+    item_data = self.preprocess_data(item_data)[item_feat].astype(np.float64).to_numpy()
     # item_data['language_score'] = np.expand_dims(np.sum(np.vectorize(self.lang_scorer.predict)(lang),axis = 1),axis = 1)
     # item_data['passion_score'] = np.expand_dims(np.sum(np.vectorize(self.passion_scorer.predict)(passion),axis = 1),axis = 1)
     return item_data
