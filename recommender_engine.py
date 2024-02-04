@@ -3,92 +3,16 @@ import numpy as np
 from keras.models import load_model
 from sklearn.preprocessing import OrdinalEncoder
 import pickle
-
-cols = [
-    'age',
-    'verified',
-    'looking_for',
-    'Pronouns',
-    'Relationship_Monogamy',
-    'Relationship_Ethical non-monogamy',
-    'Relationship_Open relationship',
-    'Relationship_Polyamory',
-    'Relationship_Open to exploring',
-    'Language_1',
-    'Language_2',
-    'Language_3',
-    'Language_4',
-    'Language_5',
-    'Basics__astrological_sign',
-    'Basics__education',
-    'Basics__kids',
-    'Basics__covid_comfort',
-    'Basics__mbti',
-    'Basics__communication_style',
-    'Basics__love_language',
-    'Lifestyle__pets',
-    'Lifestyle__drink_of_choice',
-    'Lifestyle__smoking',
-    'Lifestyle__420',
-    'Lifestyle__workout',
-    'Lifestyle__appetite',
-    'Lifestyle__social_media',
-    'Lifestyle__sleeping_habits',
-    'Passions__0',
-    'Passions__1',
-    'Passions__2',
-    'Passions__3',
-    'Passions__4',
-]
-
-cols_without_age = [
-    'verified',
-    'looking_for',
-    'Pronouns',
-    'Relationship_Monogamy',
-    'Relationship_Ethical non-monogamy',
-    'Relationship_Open relationship',
-    'Relationship_Polyamory',
-    'Relationship_Open to exploring',
-    'Language_1',
-    'Language_2',
-    'Language_3',
-    'Language_4',
-    'Language_5',
-    'Basics__astrological_sign',
-    'Basics__education',
-    'Basics__kids',
-    'Basics__covid_comfort',
-    'Basics__mbti',
-    'Basics__communication_style',
-    'Basics__love_language',
-    'Lifestyle__pets',
-    'Lifestyle__drink_of_choice',
-    'Lifestyle__smoking',
-    'Lifestyle__420',
-    'Lifestyle__workout',
-    'Lifestyle__appetite',
-    'Lifestyle__social_media',
-    'Lifestyle__sleeping_habits',
-    'Passions__0',
-    'Passions__1',
-    'Passions__2',
-    'Passions__3',
-    'Passions__4',
-]
-
-
-
+import model_features
+import importlib
+import os
 
 class metrics:
-    
   # tells about how complete user's profile is 
   def completeness_rating(data_ser, completeness_weights):
     data_np = (data_ser.to_numpy() != 'none') * 1
     completeness_rating = np.dot(data_np, completeness_weights)/np.sum(completeness_weights)
     return completeness_rating
-  
-  
   def similarity_rating(
     data_user : pd.Series,
     data_target : pd.Series,
@@ -96,122 +20,82 @@ class metrics:
     return (np.sum(data_user == data_target))
 
 
-class model_evaluation:
-  def __init__(self,user_clf_path,cbf_model_path) -> None:
-    self.encoder = OrdinalEncoder()
-    with open('D:\Programming Languages\Python\.Python Projects\TInder Recommendation system\obj\encoder.bin', 'rb') as f:
+class IndependentFeatureEncoding:
+  def __init__(self,path):
+    self.path = path
+    with open(self.path, 'rb') as f:
       self.encoder = pickle.load(f)
-      
-    self.user_clf = load_model('D:\Programming Languages\Python\.Python Projects\TInder Recommendation system\models\user_clf.h5')
-    self.cbf_model = load_model('D:\Programming Languages\Python\.Python Projects\TInder Recommendation system\models\cbf1.h5')
+  def get_frame(self,data):
+    if isinstance(data,pd.Series):
+      return data.to_frame().T
+    else:
+      return data
+  def write_encoder(self):
+    with open(self.path, 'wb') as f:
+      pickle.dump(self.encoder,f)
+  def fit(self,data):
+    data = self.get_frame(data)
+    for row in range(len(data)):
+      for j,column in enumerate(self.encoder.feature_names_in_):
+        if data.loc[row,column] not in self.encoder.categories_[j]:
+           self.encoder.categories_[j] = np.append(self.encoder.categories_[j],data.loc[row,column])
+    self.write_encoder()
+    return self.encoder
+  def transform(self,data):
+    data = self.get_frame(data)
+    with open(self.path, 'rb') as f:
+      self.encoder = pickle.load(f)
+    return self.encoder.transform(data)
+  def fit_transform(self,data):
+    self.fit(data)
+    return self.transform(data)
     
-    with open('D:\Programming Languages\Python\.Python Projects\TInder Recommendation system\data','rb') as f:
-      self.user_data_ser : pd.Series = pickle.load(f)
-    self.user_data_np = self.user_data_ser.to_frame().T[cols].to_numpy()
     
-    self.cols_without_age = [
-    'verified',
-    'looking_for',
-    'Pronouns',
-    'Relationship_Monogamy',
-    'Relationship_Ethical non-monogamy',
-    'Relationship_Open relationship',
-    'Relationship_Polyamory',
-    'Relationship_Open to exploring',
-    'Language_1',
-    'Language_2',
-    'Language_3',
-    'Language_4',
-    'Language_5',
-    'Basics__astrological_sign',
-    'Basics__education',
-    'Basics__kids',
-    'Basics__covid_comfort',
-    'Basics__mbti',
-    'Basics__communication_style',
-    'Basics__love_language',
-    'Lifestyle__pets',
-    'Lifestyle__drink_of_choice',
-    'Lifestyle__smoking',
-    'Lifestyle__420',
-    'Lifestyle__workout',
-    'Lifestyle__appetite',
-    'Lifestyle__social_media',
-    'Lifestyle__sleeping_habits',
-    'Passions__0',
-    'Passions__1',
-    'Passions__2',
-    'Passions__3',
-    'Passions__4',
-]
-
-    self.cols = [
-    'age',
-    'verified',
-    'looking_for',
-    'Pronouns',
-    'Relationship_Monogamy',
-    'Relationship_Ethical non-monogamy',
-    'Relationship_Open relationship',
-    'Relationship_Polyamory',
-    'Relationship_Open to exploring',
-    'Language_1',
-    'Language_2',
-    'Language_3',
-    'Language_4',
-    'Language_5',
-    'Basics__astrological_sign',
-    'Basics__education',
-    'Basics__kids',
-    'Basics__covid_comfort',
-    'Basics__mbti',
-    'Basics__communication_style',
-    'Basics__love_language',
-    'Lifestyle__pets',
-    'Lifestyle__drink_of_choice',
-    'Lifestyle__smoking',
-    'Lifestyle__420',
-    'Lifestyle__workout',
-    'Lifestyle__appetite',
-    'Lifestyle__social_media',
-    'Lifestyle__sleeping_habits',
-    'Passions__0',
-    'Passions__1',
-    'Passions__2',
-    'Passions__3',
-    'Passions__4',
-]
-
+class CommonFeatureEncoding(IndependentFeatureEncoding):
+  def __init__(self, path):
+    super().__init__(path)
+    self.categories = self.encoder.categories_[0].copy()
+  def fit(self,data):
+    data = self.get_frame(data)
+    for row in range(len(data)):
+      for column in self.encoder.feature_names_in_:
+        if data.loc[row,column] not in self.categories:
+           self.categories = np.append(self.categories,data.loc[row,column])
+    for i in range(len(self.encoder.categories_)):
+      self.encoder.categories_[i] = self.categories
+    self.write_encoder()
+  def fit_transform(self,data):
+    self.fit(data)
+    return self.transform(data)
   
+  
+class DataPreprocessor:
+  def __init__(self):
+    self.passion_encoder = CommonFeatureEncoding('D:/Programming Languages/Python/.Python Projects/TInder Recommendation system/obj/passion_enc.bin')
+    self.language_encoder = CommonFeatureEncoding('D:/Programming Languages/Python/.Python Projects/TInder Recommendation system/obj/passion_enc.bin')
+    self.rem_encoder = IndependentFeatureEncoding('D:/Programming Languages/Python/.Python Projects/TInder Recommendation system/obj/rem_enc.bin')
+  def get_frame_from_cols(self,dataset,cols):
+    if isinstance(dataset, pd.Series):
+      return dataset.to_frame().T[cols]
+    else:
+      return dataset[cols]
+  def preprocess_user_clf(self,data):
+    rem = self.get_frame_from_cols(data,model_features.encodables.remaining)
+    passions = self.get_frame_from_cols(data,model_features.encodables.passions)
+    lang = self.get_frame_from_cols(data,model_features.encodables.language)
+    data[model_features.encodables.remaining] = self.rem_encoder.fit_transform(rem)
+    data[model_features.encodables.passions] = self.passion_encoder.fit_transform(passions)
+    data[model_features.encodables.language] = self.language_encoder.fit_transform(lang)
+    return data
+    
+  
+class ModelEvaluator:
+  def __init__(self,user_clf_path,cbf_model_path) -> None:
+    self.user_clf = load_model(user_clf_path)
+    self.cbf_model = load_model(cbf_model_path)
   def _user_clf_pred(self,item_data):
     return self.user_clf.predict(item_data)
-  
-  def _cbf_pred(self,item_data ):
-    user_data = np.ones_like(item_data) * self.user_data_np
+  def _cbf_pred(self,item_data,user_data):
+    user_data = np.ones_like(item_data) * user_data
+    item_data = np.ones_like(user_data) * item_data
     return self.cbf_model.predict([user_data,item_data])
-  
-  def preprocess_data(self, data) -> pd.DataFrame:
-    encodable_data = data.to_numpy()
-    if isinstance(data, pd.Series):
-      encodable_data = data.to_frame().T[self.cols_without_age].to_numpy()
-    for index in range(len(encodable_data)):
-      for i,data in enumerate(encodable_data[index]):
-        if data not in self.encoder.categories_[i]:
-          self.encoder.categories_[i] = np.append(self.encoder.categories_[i],np.array([data]))
-    data[cols_without_age] = encodable_data
-    return data
-  
-  def make_prediction(self, item):
-    if isinstance(item,pd.Series):
-      item_frame = self.preprocess_data(item)
-      item_data = item_frame[cols].to_numpy()
-      return (self._user_clf_pred(item_data),self._cbf_pred(item_data))
-    elif isinstance(item,pd.DataFrame):
-      item_frame = self.preprocess_data(item)
-      item_data = item_frame[cols].to_numpy()
-      return (self._user_clf_pred(item_data),self._cbf_pred(item_data))
-    
-        
-
-  
-  
