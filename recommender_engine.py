@@ -40,7 +40,7 @@ class IndependentFeatureEncoding:
     data = self.get_frame(data)
     for row in range(len(data)):
       for j,column in enumerate(self.encoder.feature_names_in_):
-        if data.loc[row,column] not in self.encoder.categories_[j]:
+        if data.iloc[row][column] not in self.encoder.categories_[j]:
            self.encoder.categories_[j] = np.append(self.encoder.categories_[j],data.loc[row,column])
     self.write_encoder()
     return self.encoder
@@ -52,7 +52,9 @@ class IndependentFeatureEncoding:
     return self.encoder.transform(data)
   
   def fit_transform(self,data):
-    return self.fit(data).transform(data)
+    data = self.get_frame(data)
+    self.fit(data)
+    return self.encoder.transform(data)
     
     
 class CommonFeatureEncoding(IndependentFeatureEncoding):
@@ -64,7 +66,7 @@ class CommonFeatureEncoding(IndependentFeatureEncoding):
     data = self.get_frame(data)
     for row in range(len(data)):
       for column in self.encoder.feature_names_in_:
-        if data.loc[row,column] not in self.categories:
+        if data.iloc[row][column] not in self.categories:
            self.categories = np.append(self.categories,data.loc[row,column])
     for i in range(len(self.encoder.categories_)):
       self.encoder.categories_[i] = self.categories
@@ -72,25 +74,38 @@ class CommonFeatureEncoding(IndependentFeatureEncoding):
     return self.encoder
   
   def fit_transform(self,data):
-    return self.fit(data).transform(data)
+    data = self.get_frame(data)
+    self.fit(data)
+    return self.encoder.transform(data)
   
   
 
 class DataPreprocessor:
   def __init__(
     self,
+    path,
+    passions_enc_name,
+    lang_enc_name,
+    rem_enc_name,
   ):
-    self.passion_encoder = CommonFeatureEncoding('D:/Programming Languages/Python/.Python Projects/TInder Recommendation system/obj/passions_enc.bin')
-    self.language_encoder = CommonFeatureEncoding('D:/Programming Languages/Python/.Python Projects/TInder Recommendation system/obj/lang_enc.bin')
-    self.rem_encoder = IndependentFeatureEncoding('D:/Programming Languages/Python/.Python Projects/TInder Recommendation system/obj/rem_enc.bin')
+    self.passion_encoder = CommonFeatureEncoding(os.path.join(path,passions_enc_name))
+    self.language_encoder = CommonFeatureEncoding(os.path.join(path,lang_enc_name))
+    self.rem_encoder = IndependentFeatureEncoding(os.path.join(path,rem_enc_name))
   
   def get_frame_from_cols(self,dataset,cols):
-    if isinstance(dataset, pd.Series):
-      return dataset.to_frame().T[cols].astype('object')
+    return dataset[cols].astype('object', copy = False )
+  
+  def copy_frame(self,data):
+    if isinstance(data,pd.Series):
+      frame = pd.DataFrame(data ).T
+      return frame
     else:
-      return dataset[cols].astype('object')
+      return data.copy()
     
-  def preprocess_data(self,data):
+  pd.DataFrame().copy
+  def preprocess_data(self,_data):
+    data = self.copy_frame(_data)
+    
     passions = self.passion_encoder.fit_transform(self.get_frame_from_cols(data,model_features.encodables.passions))
     lang = self.language_encoder.fit_transform(self.get_frame_from_cols(data,model_features.encodables.language))
     rem = self.rem_encoder.fit_transform(self.get_frame_from_cols(data,model_features.encodables.remaining))
@@ -101,33 +116,59 @@ class DataPreprocessor:
     data[model_features.encodables.remaining] = rem
     data[model_features.encodables.passions] = passions
     data[model_features.encodables.language] = lang
-    
     return data
   
   
-  def preprocessing_cbf_clf(self,user_data,item_data):
-    user_data = self.preprocess_data(user_data).to_numpy()
-    item_data = self.preprocess_data(item_data).to_numpy()
-    return user_data, item_data
+  def preprocessing_cbf_clf(self,user_data,item_data,user_feat,item_feat):
+    _user_data = self.preprocess_data(user_data)[user_feat].astype(np.float64, copy = False).to_numpy()
+    _item_data = self.preprocess_data(item_data)[item_feat].astype(np.float64, copy = False).to_numpy()
+    return _user_data, _item_data
   
-  def preprocessing_user_clf(self,item_data):
-    item_data = self.preprocess_data(item_data).to_numpy()
+  def preprocessing_user_clf(self,item_data,item_feat):
+    _item_data = self.preprocess_data(item_data)[item_feat].astype(np.float64, copy = False).to_numpy()
     # item_data['language_score'] = np.expand_dims(np.sum(np.vectorize(self.lang_scorer.predict)(lang),axis = 1),axis = 1)
     # item_data['passion_score'] = np.expand_dims(np.sum(np.vectorize(self.passion_scorer.predict)(passion),axis = 1),axis = 1)
-    return item_data
+    return _item_data
     
-    
-    
+  def reset_encoders(self,obj_path,*names):
+    for name in names:
+        with open (os.path.join(obj_path ,f'dummy_{name}.bin'),'rb') as f:
+            dummy = pickle.load(f)
+        with open(os.path.join(obj_path ,f'{name}.bin'),'wb') as f:
+            pickle.dump(dummy,f)
+  def get_data_from_bin(self,path):
+    with open (path, 'rb') as f:
+      data = pickle.load(f)
+    return data
+
   
 class ModelEvaluator:
-  def __init__(self,user_clf_path,cbf_model_path) -> None:
+  def __init__(
+    self,
+    user_clf_path,
+    cbf_model_path,
+    obj_path,
+    passions_enc_name,
+    lang_enc_name,
+    rem_enc_name,
+    
+  ) -> None:
     self.user_clf = load_model(user_clf_path)
     self.cbf_model = load_model(cbf_model_path)
+    self.pre = DataPreprocessor(obj_path,passions_enc_name,lang_enc_name,rem_enc_name)
     
-  def _user_clf_pred(self,item_data):
-    return self.user_clf.predict(item_data)
+  def get_user_clf_pred(self,data):
+    _data = self.pre.preprocessing_user_clf(data,model_features.user_clf_features)
+    return self.user_clf.predict(_data)
   
-  def _cbf_pred(self,item_data,user_data):
-    user_data = np.ones_like(item_data) * user_data
-    item_data = np.ones_like(user_data) * item_data
-    return self.cbf_model.predict([user_data,item_data])
+  def get_cbf_pred(self,data):
+    user_data = self.pre.get_data_from_bin('D:/Programming Languages/Python/.Python Projects/TInder Recommendation system/data/user_data.bin')
+    _data = self.pre.preprocessing_cbf_clf(user_data,data, model_features.user_clf_features, model_features.user_clf_features)
+    return self.user_clf.predict(_data)
+  
+    
+  
+  
+
+
+# pre.reset_encoders('D:/Programming Languages/Python/.Python Projects/TInder Recommendation system/obj','lang_enc','rem_enc','passions_enc')
