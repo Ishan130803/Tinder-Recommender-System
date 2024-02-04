@@ -83,6 +83,10 @@ class CommonFeatureEncoding(IndependentFeatureEncoding):
 class DataPreprocessor:
   def __init__(
     self,
+    path,
+    passions_enc_name,
+    lang_enc_name,
+    rem_enc_name,
     passion_enc_path,
     language_enc_path,
     rem_enc_path,

@@ -76,6 +76,8 @@ user_clf_features = [
     'Passions__2',
     'Passions__3',
     'Passions__4',
+    # 'language_score',
+    # 'passion_score',
   ]
     
 non_encodables = ['age']
