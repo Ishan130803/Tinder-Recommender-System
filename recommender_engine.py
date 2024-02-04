@@ -87,10 +87,13 @@ class DataPreprocessor:
     passions_enc_name,
     lang_enc_name,
     rem_enc_name,
+    passion_enc_path,
+    language_enc_path,
+    rem_enc_path,
   ):
-    self.passion_encoder = CommonFeatureEncoding(os.path.join(path,passions_enc_name))
-    self.language_encoder = CommonFeatureEncoding(os.path.join(path,lang_enc_name))
-    self.rem_encoder = IndependentFeatureEncoding(os.path.join(path,rem_enc_name))
+    self.passion_encoder = CommonFeatureEncoding('D:/Programming Languages/Python/.Python Projects/TInder Recommendation system/obj/passions_enc.bin')
+    self.language_encoder = CommonFeatureEncoding('D:/Programming Languages/Python/.Python Projects/TInder Recommendation system/obj/lang_enc.bin')
+    self.rem_encoder = IndependentFeatureEncoding('D:/Programming Languages/Python/.Python Projects/TInder Recommendation system/obj/rem_enc.bin')
   
   def get_frame_from_cols(self,dataset,cols):
     return dataset[cols].astype('object', copy = False )
@@ -119,13 +122,13 @@ class DataPreprocessor:
     return data
   
   
-  def preprocessing_cbf_clf(self,user_data,item_data,user_feat,item_feat):
-    _user_data = self.preprocess_data(user_data)[user_feat].astype(np.float64, copy = False).to_numpy()
-    _item_data = self.preprocess_data(item_data)[item_feat].astype(np.float64, copy = False).to_numpy()
-    return _user_data, _item_data
+  def preprocessing_cbf_clf(self,user_data,item_data):
+    user_data = self.preprocess_data(user_data).to_numpy()
+    item_data = self.preprocess_data(item_data).to_numpy()
+    return user_data, item_data
   
-  def preprocessing_user_clf(self,item_data,item_feat):
-    _item_data = self.preprocess_data(item_data)[item_feat].astype(np.float64, copy = False).to_numpy()
+  def preprocessing_user_clf(self,item_data):
+    item_data = self.preprocess_data(item_data).to_numpy()
     # item_data['language_score'] = np.expand_dims(np.sum(np.vectorize(self.lang_scorer.predict)(lang),axis = 1),axis = 1)
     # item_data['passion_score'] = np.expand_dims(np.sum(np.vectorize(self.passion_scorer.predict)(passion),axis = 1),axis = 1)
     return _item_data
