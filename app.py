@@ -51,9 +51,9 @@ class TinderBot:
     return data
 
   def auto_routine(self):
-    time.sleep(0.5+0.2*np.random.random())
+    time.sleep(0.5+0.5*np.random.random())
     self.press_key(Keys.ARROW_UP)
-    time.sleep(0.5+0.2*np.random.random())
+    time.sleep(0.5+0.5*np.random.random())
     data = self.get_all()
     row = db_utils.create_row_series(data)
     swipe = np.random.randint(0,2)
@@ -84,7 +84,6 @@ class TinderBot:
         row['prediction'] = 'YES'
       elif q == 'q':
         return row,False
-      self.get_expected_prediction(row)
       return row,True
 
   def user_loop(self):
@@ -95,8 +94,9 @@ class TinderBot:
       if running == False:
         break
       else:
-        print(row)
         self.df.loc[len(self.df)] = row
+        print(row.to_frame().T)
+        self.get_expected_prediction(row)
     self.append()
     
   def auto_loop(self, max_data = 10):
@@ -120,21 +120,21 @@ class TinderBot:
   def login(self):
     login_btn = self.driver.find_element(By.XPATH,Xpaths.login_btn)
     login_btn.click()
-    time.sleep(0.2)
+    time.sleep(0.5)
     more_options = self.driver.find_element(By.XPATH,Xpaths.more_options)
     more_options.click()
-    time.sleep(0.2)
+    time.sleep(0.5)
     more_options = self.driver.find_element(By.XPATH,Xpaths.more_options)
     more_options.click()
-    time.sleep(0.2)
+    time.sleep(0.5)
     email_field = self.driver.find_element(By.XPATH,Xpaths.email)
     email_field.click()
-    time.sleep(0.2)
+    time.sleep(0.5)
     email_field.clear()
     email_field.send_keys('abca19510@gmail.com')
     send_email = self.driver.find_element(By.XPATH,Xpaths.send_email)
     send_email.click()
-    time.sleep(0.2)
+    time.sleep(0.5)
 
 api = TinderBot(
   "D:/Programming Languages/Python/.Python Projects/TInder Recommendation system/drivers/chromedriver.exe",
