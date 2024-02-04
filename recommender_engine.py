@@ -87,13 +87,10 @@ class DataPreprocessor:
     passions_enc_name,
     lang_enc_name,
     rem_enc_name,
-    passion_enc_path,
-    language_enc_path,
-    rem_enc_path,
   ):
-    self.passion_encoder = CommonFeatureEncoding(passion_enc_path)
-    self.language_encoder = CommonFeatureEncoding(language_enc_path)
-    self.rem_encoder = IndependentFeatureEncoding(rem_enc_path)
+    self.passion_encoder = CommonFeatureEncoding(os.path.join(path,passions_enc_name))
+    self.language_encoder = CommonFeatureEncoding(os.path.join(path,lang_enc_name))
+    self.rem_encoder = IndependentFeatureEncoding(os.path.join(path,rem_enc_name))
   
   def get_frame_from_cols(self,dataset,cols):
     return dataset[cols].astype('object', copy = False )
@@ -128,7 +125,7 @@ class DataPreprocessor:
     return user_data, item_data
   
   def preprocessing_user_clf(self,item_data,item_feat):
-    item_data = self.preprocess_data(item_data)[item_feat].astype(np.float64).to_numpy()
+    _item_data = self.preprocess_data(item_data)[item_feat].astype(np.float64).to_numpy()
     # item_data['language_score'] = np.expand_dims(np.sum(np.vectorize(self.lang_scorer.predict)(lang),axis = 1),axis = 1)
     # item_data['passion_score'] = np.expand_dims(np.sum(np.vectorize(self.passion_scorer.predict)(passion),axis = 1),axis = 1)
     return _item_data
