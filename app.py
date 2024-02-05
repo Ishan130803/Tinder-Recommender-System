@@ -18,8 +18,8 @@ class TinderBot:
     self.Tsc = Tsc(driver=self.driver)
     self.df : pd.DataFrame = pd.read_csv(data_path)
     self.evaluator = ModelEvaluator(
-      user_clf_path='D:/Programming Languages/Python/.Python Projects/TInder Recommendation system/models/user_clf.h5',
-      cbf_model_path='D:/Programming Languages/Python/.Python Projects/TInder Recommendation system/models/cbf1.h5',
+      user_clf_path='D:/Programming Languages/Python/.Python Projects/TInder Recommendation system/models/user_clf1.h5',
+      cbf_model_path='D:/Programming Languages/Python/.Python Projects/TInder Recommendation system/models/cbf2.h5',
       obj_path='D:/Programming Languages/Python/.Python Projects/TInder Recommendation system/obj',
       lang_enc_name='lang_enc.bin',
       passions_enc_name='passions_enc.bin',
